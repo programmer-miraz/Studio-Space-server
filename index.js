@@ -18,17 +18,24 @@ export async function connectToMongoDB() {
         console.dir(err);
     }
 }
-const connectClient = connectToMongoDB()
-const db = connectClient.db()
-const user_1 = db.collection()
+const connectClient = await connectToMongoDB()
+const db = connectClient.db("Studio-space")
+const cetagoryData = db.collection("cetagory")
+const cartCollection = db.collection("cart")
 
 app.get('/', (req, res) => {
 
     res.send('Hello World!');
 });
 
+app.get('/cetagory', async (req, res) => {
+    const result = await cetagoryData.find({}).toArray()
+    res.send(result)
+})
+
 
 app.post('/', (req, res) => {
+    res.send("home")
 
 })
 
