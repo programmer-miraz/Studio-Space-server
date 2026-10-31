@@ -20,8 +20,9 @@ export async function connectToMongoDB() {
 }
 const connectClient = await connectToMongoDB()
 const db = connectClient.db("Studio-space")
-const cetagoryData = db.collection("cetagory")
-const cartCollection = db.collection("cart")
+const categoryData = db.collection("category")
+const studiosData = db.collection("cart")
+
 
 app.get('/', (req, res) => {
 
@@ -29,7 +30,11 @@ app.get('/', (req, res) => {
 });
 
 app.get('/cetagory', async (req, res) => {
-    const result = await cetagoryData.find({}).toArray()
+    const result = await categoryData.find({}).toArray()
+    res.send(result)
+})
+app.get('/explore-studios', async (req, res) => {
+    const result = await studiosData.find({}).toArray()
     res.send(result)
 })
 
