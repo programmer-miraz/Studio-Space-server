@@ -34,6 +34,7 @@ app.get('/cetagory', async (req, res) => {
     res.send(result)
 })
 
+
 // All Studio Data + Category Filter
 app.get('/explore-studios', async (req, res) => {
     const { category } = req.query;
@@ -48,10 +49,18 @@ app.get('/explore-studios', async (req, res) => {
 
     res.send(result);
 });
+
 //details 
 app.get('/explore-studios/:id', async (req, res) => {
     const { id } = req.params
     const result = await studiosData.findOne({ _id: new ObjectId(id) })
+    res.send(result)
+})
+
+//add studio
+app.post("/add_studio", async (req, res) => {
+    const data = req.body
+    const result = await studiosData.insertOne(data)
     res.send(result)
 })
 
