@@ -28,18 +28,26 @@ app.get('/', (req, res) => {
 
     res.send('Hello World!');
 });
-
+///cetagory
 app.get('/cetagory', async (req, res) => {
     const result = await categoryData.find({}).toArray()
     res.send(result)
 })
 
-//cart data 
+// All Studio Data + Category Filter
 app.get('/explore-studios', async (req, res) => {
-    const result = await studiosData.find({}).toArray()
-    res.send(result)
-})
+    const { category } = req.query;
 
+    const filter = {};
+
+    if (category) {
+        filter.category = category;
+    }
+
+    const result = await studiosData.find(filter).toArray();
+
+    res.send(result);
+});
 //details 
 app.get('/explore-studios/:id', async (req, res) => {
     const { id } = req.params
