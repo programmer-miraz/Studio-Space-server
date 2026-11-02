@@ -64,6 +64,57 @@ app.post("/add_studio", async (req, res) => {
     res.send(result)
 })
 
+// my listing
+app.get("/my-listing/:email", async (req, res) => {
+    const email = req.params.email;
+    const result = await studiosData.find({ email: email }).toArray()
+    res.send(result)
+
+});
+
+//edit get data
+app.get("/my-listing-edit/:id", async (req, res) => {
+  const { id } = req.params;
+  const result = await studiosData.findOne({
+    _id: new ObjectId(id),
+  });
+
+  res.send(result);
+});
+
+
+
+
+// app.get("/my-listing-edit/:email", async (req, res) => {
+//     const email = req.params.email;
+//     const result = await studiosData.findOne({ email: email })
+//     res.send(result)
+
+// });
+
+
+
+
+// delete my listing data 
+app.delete("/my-listing/:email", async (req, res) => {
+    const { email } = req.params
+    const result = await studiosData.deleteOne({ email: email })
+    res.send(result)
+
+})
+//updatedData 
+app.patch("/my-listing-update/:id", async (req, res) => {
+    const { id } = req.params
+    const updatedData = req.body
+    const result = await studiosData.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedData }
+    )
+    res.json(result)
+
+
+})
+
 
 app.post('/', (req, res) => {
     res.send("home")
