@@ -86,10 +86,30 @@ app.get("/my-listing-edit/:id", async (req, res) => {
 
 //boking collectio
 app.post("/booking", async (req, res) => {
-    const data = req.body
-    const result = await bookingData.insertOne(data)
-    res.send(result)
-})
+    const data = req.body;
+
+    const existingBooking = await bookingData.findOne({
+        studioId: data.studioId,
+        bookingDate: data.bookingDate,
+        status: "Confirmed",
+        startTime: { $lt: data.endTime },
+        endTime: { $gt: data.startTime }
+    });
+
+    if (existingBooking) {
+        return res.status(409).send({
+            message: "This studio is already booked for this time!"
+        });
+    }
+
+    const result = await bookingData.insertOne({
+        ...data,
+        status: "Pending"
+    });
+
+    res.send(result);
+});
+
 
 // Boking get
 app.get("/booking/:email", async (req, res) => {
@@ -99,6 +119,16 @@ app.get("/booking/:email", async (req, res) => {
 
 });
 
+
+app.patch("/bookings/cancel/:id", async (req, res) => {
+    const { id } = req.params
+    const result = await bookingData.updateOne(
+        { _id: new ObjectId(id), status: "Pending" },
+        { $set: { status: "Cancelled" } }
+    );
+
+    res.send(result);
+});
 
 // delete my listing data 
 app.delete("/my-listing/:email", async (req, res) => {
