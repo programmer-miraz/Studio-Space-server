@@ -22,6 +22,7 @@ const connectClient = await connectToMongoDB()
 const db = connectClient.db("Studio-space")
 const categoryData = db.collection("category")
 const studiosData = db.collection("cart")
+const bookingData = db.collection("booking")
 
 
 app.get('/', (req, res) => {
@@ -74,25 +75,29 @@ app.get("/my-listing/:email", async (req, res) => {
 
 //edit get data
 app.get("/my-listing-edit/:id", async (req, res) => {
-  const { id } = req.params;
-  const result = await studiosData.findOne({
-    _id: new ObjectId(id),
-  });
+    const { id } = req.params;
+    const result = await studiosData.findOne({
+        _id: new ObjectId(id),
+    });
 
-  res.send(result);
+    res.send(result);
 });
 
 
+//boking collectio
+app.post("/booking", async (req, res) => {
+    const data = req.body
+    const result = await bookingData.insertOne(data)
+    res.send(result)
+})
 
+// Boking get
+app.get("/booking/:email", async (req, res) => {
+    const email = req.params.email;
+    const result = await bookingData.find({ email: email }).toArray()
+    res.send(result)
 
-// app.get("/my-listing-edit/:email", async (req, res) => {
-//     const email = req.params.email;
-//     const result = await studiosData.findOne({ email: email })
-//     res.send(result)
-
-// });
-
-
+});
 
 
 // delete my listing data 
