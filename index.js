@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors'
 import 'dotenv/config'
 import { MongoClient, ObjectId } from 'mongodb';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 const app = express();
 const PORT = 5000;
@@ -24,11 +25,29 @@ const categoryData = db.collection("category")
 const studiosData = db.collection("cart")
 const bookingData = db.collection("booking")
 
+/// verifyToken
+const verifyToken = async (req, res, next) => {
+    const authHeaders = req.headers.authorization
+    console.log(authHeaders);
+
+    if (authHeaders) {
+        const token = authHeaders.split(" ")[1]
+        const JWKS = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`))
+        const { payload } = await jwtVerify(token, JWKS)
+        console.log(payload);
+        return next()
+    }
+
+    return res.status(401).send({ message: "Un authorized" });
+}
+
+
 
 app.get('/', (req, res) => {
-
     res.send('Hello World!');
 });
+
+
 ///cetagory
 app.get('/cetagory', async (req, res) => {
     const result = await categoryData.find({}).toArray()
@@ -59,8 +78,9 @@ app.get('/explore-studios/:id', async (req, res) => {
 })
 
 //add studio
-app.post("/add_studio", async (req, res) => {
+app.post("/add-studio", verifyToken, async (req, res) => {
     const data = req.body
+    console.log("add studio verify",data);
     const result = await studiosData.insertOne(data)
     res.send(result)
 })
@@ -71,6 +91,10 @@ app.get("/my-listing/:email", async (req, res) => {
     const result = await studiosData.find({ email: email }).toArray()
     res.send(result)
 
+});
+
+app.get("/add-studio", verifyToken, (req, res) => {
+    res.status(200).send("Authorized");
 });
 
 //edit get data
@@ -85,7 +109,7 @@ app.get("/my-listing-edit/:id", async (req, res) => {
 
 
 //boking collectio
-app.post("/booking", async (req, res) => {
+app.post("/booking", verifyToken, async (req, res) => {
     const data = req.body;
 
     const existingBooking = await bookingData.findOne({
@@ -131,7 +155,7 @@ app.patch("/bookings/cancel/:id", async (req, res) => {
 });
 
 // delete my listing data 
-app.delete("/my-listing/:email", async (req, res) => {
+app.delete("/my-listing/:email", verifyToken, async (req, res) => {
     const { email } = req.params
     const result = await studiosData.deleteOne({ email: email })
     res.send(result)
@@ -159,3 +183,4 @@ app.post('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
 });
+export default app
