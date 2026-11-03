@@ -28,8 +28,6 @@ const bookingData = db.collection("booking")
 /// verifyToken
 const verifyToken = async (req, res, next) => {
     const authHeaders = req.headers.authorization
-    console.log(authHeaders);
-
     if (authHeaders) {
         const token = authHeaders.split(" ")[1]
         const JWKS = createRemoteJWKSet(new URL(`${process.env.CLIENT_URL}/api/auth/jwks`))
@@ -39,6 +37,7 @@ const verifyToken = async (req, res, next) => {
     }
 
     return res.status(401).send({ message: "Un authorized" });
+
 }
 
 
